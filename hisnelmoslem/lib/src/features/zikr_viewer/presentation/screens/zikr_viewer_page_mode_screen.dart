@@ -13,9 +13,7 @@ class _ZikrViewerPageModeScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: Text(
-              state.title.name,
-            ),
+            title: Text(state.title.name),
             actions: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -27,24 +25,38 @@ class _ZikrViewerPageModeScreen extends StatelessWidget {
             ],
             bottom: state.activeZikr == null
                 ? null
-                : PreferredSize(
-                    preferredSize: const Size.fromHeight(50),
-                    child: Column(
-                      children: [
-                        ZikrViewerTopBar(dbContent: state.activeZikr!),
-                        const ZikrViewerProgressBar(),
-                      ],
-                    ),
+                : const PreferredSize(
+                    preferredSize: Size.fromHeight(5),
+                    child: Column(children: [ZikrViewerProgressBar()]),
                   ),
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              if (state.activeZikr != null) {
+                context.read<ZikrViewerBloc>().add(
+                  ZikrViewerDecreaseZikrEvent(content: state.activeZikr!),
+                );
+              }
+            },
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            elevation: .5,
+            child: switch (state.activeZikr?.count) {
+              null => const SizedBox(),
+              final c when c == 0 => const Icon(Icons.done_outline, size: 28),
+              int() => Text(
+                state.activeZikr!.count.toString(),
+                style: const TextStyle(fontSize: 28),
+              ),
+            },
           ),
           body: PageView.builder(
             physics: const BouncingScrollPhysics(),
             controller: context.read<ZikrViewerBloc>().pageController,
             itemCount: state.azkarToView.length,
             itemBuilder: (context, index) {
-              return ZikrViewerPageBuilder(
-                dbContent: state.azkarToView[index],
-              );
+              return ZikrViewerPageBuilder(dbContent: state.azkarToView[index]);
             },
           ),
           bottomNavigationBar: state.activeZikr == null
